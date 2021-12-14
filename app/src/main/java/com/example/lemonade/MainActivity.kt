@@ -67,10 +67,11 @@ class MainActivity : AppCompatActivity() {
         setViewElements()
         lemonImage!!.setOnClickListener {
             // TODO: call the method that handles the state when the image is clicked
+            clickLemonImage()
         }
         lemonImage!!.setOnLongClickListener {
             // TODO: replace 'false' with a call to the function that shows the squeeze count
-            false
+            showSnackbar()
         }
     }
 
@@ -109,8 +110,21 @@ class MainActivity : AppCompatActivity() {
 
         // TODO: When the image is clicked in the RESTART state the state should become SELECT
 
+         lemonadeState = when (lemonadeState) {
+            SELECT -> SQUEEZE.also { lemonSize = lemonTree.pick()
+                squeezeCount = 0 }
+
+            SQUEEZE -> if (lemonSize>squeezeCount) SQUEEZE.also { squeezeCount++ } else DRINK.also { lemonSize=-1
+            squeezeCount=-1}
+
+            DRINK ->  RESTART
+
+            else -> SELECT
+        }
+
         // TODO: lastly, before the function terminates we need to set the view elements so that the
         //  UI can reflect the correct state
+        setViewElements()
     }
 
     /**
@@ -122,10 +136,25 @@ class MainActivity : AppCompatActivity() {
 
         // TODO: for each state, the textAction TextView should be set to the corresponding string from
         //  the string resources file. The strings are named to match the state
+        val textActionString = when(lemonadeState){
+            SELECT -> R.string.lemon_select
+            SQUEEZE -> R.string.lemon_squeeze
+            DRINK -> R.string.lemon_drink
+            else ->  R.string.lemon_empty_glass
+        }
+        textAction.setText(textActionString)
 
         // TODO: Additionally, for each state, the lemonImage should be set to the corresponding
         //  drawable from the drawable resources. The drawables have the same names as the strings
         //  but remember that they are drawables, not strings.
+        val lemonDrawable = when(lemonadeState){
+            SELECT -> R.drawable.lemon_tree
+            SQUEEZE -> R.drawable.lemon_squeeze
+            DRINK -> R.drawable.lemon_drink
+            else -> R.drawable.lemon_restart
+        }
+        lemonImage?.setImageResource(lemonDrawable)
+        lemonImage?.contentDescription = textActionString.toString()
     }
 
     /**
